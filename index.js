@@ -91,5 +91,27 @@ client.on("messageCreate", async (message) => {
     );
   }
 });
+// !creatematch
+if (command === "creatematch") {
+
+    const team1 = args[0];
+    const team2 = args[1];
+
+    if (!team1 || !team2) {
+        return message.reply(
+            "Usage: !creatematch Team1 Team2"
+        );
+    }
+
+    return message.reply(
+`✅ Match Created!
+
+🆔 ID: 1
+
+⚽ ${team1} 🆚 ${team2}
+
+Status: OPEN`
+    );
+}
 
 client.login(process.env.DISCORD_TOKEN);
