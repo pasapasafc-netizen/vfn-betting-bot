@@ -520,6 +520,48 @@ if (command === "betslip") {
 📊 Status: ${match.status}`
   );
 }
+  // ======================
+// !history
+// ======================
+if (command === "history") {
+
+  const bets = loadBets();
+
+  const myBets = bets.filter(
+    b => b.user === message.author.id
+  );
+
+  if (myBets.length === 0) {
+    return message.reply("❌ No betting history found.");
+  }
+
+  const matches = loadMatches();
+
+  let text = "📜 **Bet History**\n\n";
+
+  myBets.forEach(bet => {
+
+    const match = matches.find(
+      m => m.id === bet.matchId
+    );
+
+    if (match) {
+
+      text +=
+`🆔 Match ${bet.matchId}
+⚽ ${match.team1} 🆚 ${match.team2}
+🎯 Pick: ${bet.team}
+💰 Stake: ${bet.amount} coins
+📊 Status: ${match.status}
+
+`;
+
+    }
+
+  });
+
+  return message.reply(text);
+}
   });
 
 // ======================
