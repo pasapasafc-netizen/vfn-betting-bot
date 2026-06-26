@@ -322,6 +322,7 @@ if (command === "result") {
   match.status = "FINISHED";
 
   let winners = 0;
+  let winnerList = "";
 
   bets.forEach(bet => {
 
@@ -344,6 +345,7 @@ users[bet.user].coins += Math.floor(bet.amount * multiplier);
         saveUsers(users);
 
         winners++;
+        winnerList += `<@${bet.user}> won ${Math.floor(bet.amount * multiplier)} coins\n`;
       }
 
     }
@@ -357,12 +359,13 @@ users[bet.user].coins += Math.floor(bet.amount * multiplier);
 
 ⚽ Winner: ${winner}
 
-🥇 Paid ${winners} winner(s)
+🥇 Winners Paid:
+${winnerList || "No winners"}
 
-💸 Winnings calculated using match odds.
+👥 Total Winners: ${winners}
 
 ✅ Match Finished`
-  );
+);
 }
   // ======================
 // !mybets
