@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const { Client, GatewayIntentBits } = require("discord.js");
 const { loadUsers, saveUsers } = require("./db");
+const fs = require("fs");
 
 const client = new Client({
   intents: [
@@ -23,6 +24,14 @@ function getUser(users, userId) {
   }
 
   return users[userId];
+}
+
+function loadMatches() {
+  if (!fs.existsSync("./matches.json")) {
+    fs.writeFileSync("./matches.json", "[]");
+  }
+
+  return JSON.parse(fs.readFileSync("./matches.json", "utf8"));
 }
 
 client.once("ready", () => {
@@ -55,9 +64,10 @@ client.on("messageCreate", async (message) => {
 
 !ping - Check bot latency
 !help - Show this menu
-!balance - View your coin balance
-!daily - Claim 500 coins every 24 hours
-!creatematch Team1 Team2 - Create a match`
+!balance - View your balance
+!daily - Claim 500 coins
+!creatematch Team1 Team2
+!matches - View all open matches`
     );
   }
 
@@ -96,7 +106,7 @@ client.on("messageCreate", async (message) => {
     saveUsers(users);
 
     return message.reply(
-      `🎉 You claimed your daily reward of **500 coins**!\n💰 New Balance: **${user.coins.toLocaleString()}** coins.`
+      `🎉 You claimed **500 coins!**\n💰 Balance: **${user.coins.toLocaleString()}** coins.`
     );
   }
 
@@ -108,20 +118,42 @@ client.on("messageCreate", async (message) => {
     const team2 = args[1];
 
     if (!team1 || !team2) {
-      return message.reply(
-        "Usage: !creatematch Team1 Team2"
-      );
+      return message.reply("Usage: !creatematch Team1 Team2");
     }
 
     return message.reply(
-`✅ **Match Created!**
+`✅ Match Created!
 
-🆔 ID: **1**
+🆔 ID: 1
 
-⚽ **${team1}** 🆚 **${team2}**
+⚽ ${team1} 🆚 ${team2}
 
-📊 Status: **OPEN**`
+📊 Status: OPEN`
     );
+  }
+
+  // ======================
+  // !matches
+  // ======================
+  if (command === "matches") {
+    const matches = loadMatches();
+
+    if (matches.length === 0) {
+      return message.reply("❌ No matches available.");
+    }
+
+    let text = "📋 **Open Matches**\n\n";
+
+    matches.forEach(match => {
+      text +=
+`🆔 ${match.id}
+⚽ ${match.team1} 🆚 ${match.team2}
+📊 Status: ${match.status}
+
+`;
+    });
+
+    return message.reply(text);
   }
 });
 
