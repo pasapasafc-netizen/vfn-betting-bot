@@ -205,4 +205,69 @@ client.on("messageCreate", async (message) => {
 // ======================
 // LOGIN
 // ======================
+// ======================
+// !bet
+// ======================
+if (command === "bet") {
+
+  const matchId = parseInt(args[0]);
+  const team = args[1];
+  const amount = parseInt(args[2]);
+
+  if (!matchId || !team || !amount) {
+    return message.reply(
+      "Usage: !bet MatchID Team Amount\nExample: !bet 1 Barcelona 500"
+    );
+  }
+
+  const matches = loadMatches();
+  const bets = loadBets();
+
+  const match = matches.find(m => m.id === matchId);
+
+  if (!match) {
+    return message.reply("❌ Match not found.");
+  }
+
+  if (match.status !== "OPEN") {
+    return message.reply("❌ Betting is closed for this match.");
+  }
+
+  if (
+    team.toLowerCase() !== match.team1.toLowerCase() &&
+    team.toLowerCase() !== match.team2.toLowerCase()
+  ) {
+    return message.reply("❌ Choose one of the two teams playing.");
+  }
+
+  if (user.coins < amount) {
+    return message.reply("❌ You don't have enough coins.");
+  }
+
+  user.coins -= amount;
+  saveUsers(users);
+
+  bets.push({
+    user: message.author.id,
+    matchId,
+    team,
+    amount
+  });
+
+  saveBets(bets);
+
+  return message.reply(
+`✅ Bet Placed!
+
+🆔 Match ID: ${matchId}
+
+⚽ ${match.team1} 🆚 ${match.team2}
+
+🎯 Pick: ${team}
+
+💰 Amount: ${amount} coins
+
+🏦 Remaining Balance: ${user.coins}`
+  );
+}
 client.login(process.env.DISCORD_TOKEN);
