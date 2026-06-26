@@ -484,9 +484,9 @@ if (command === "betslip") {
   );
 
   if (!bet) {
-    return message.reply("❌ You don't have any active bets.");
+  return message.reply("❌ You don't have any active bets.");
   }
-
+  
   const matches = loadMatches();
 
   const match = matches.find(
@@ -524,7 +524,7 @@ if (command === "betslip") {
 📊 Status: ${match.status}`
   );
 }
-  });
+  
 
 // ======================
 // LOGIN
