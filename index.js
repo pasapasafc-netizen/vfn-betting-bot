@@ -385,6 +385,25 @@ if (command === "mybets") {
 
   return message.reply(text);
 }
+  // ======================
+// !leaderboard
+// ======================
+if (command === "leaderboard") {
+
+  const users = loadUsers();
+
+  const leaderboard = Object.entries(users)
+    .sort((a, b) => b[1].coins - a[1].coins)
+    .slice(0, 10);
+
+  let text = "🏆 **Coin Leaderboard**\n\n";
+
+  leaderboard.forEach(([id, data], index) => {
+    text += `${index + 1}. <@${id}> - 💰 ${data.coins} coins\n`;
+  });
+
+  return message.reply(text);
+}
   });
 
 // ======================
