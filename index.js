@@ -344,6 +344,47 @@ if (command === "result") {
 ✅ Match Finished`
   );
 }
+  // ======================
+// !mybets
+// ======================
+if (command === "mybets") {
+
+  const bets = loadBets();
+
+  const myBets = bets.filter(
+    bet => bet.user === message.author.id
+  );
+
+  if (myBets.length === 0) {
+    return message.reply("❌ You haven't placed any bets.");
+  }
+
+  const matches = loadMatches();
+
+  let text = "📋 **Your Bets**\n\n";
+
+  myBets.forEach(bet => {
+
+    const match = matches.find(
+      m => m.id === bet.matchId
+    );
+
+    if (match) {
+
+      text +=
+`🆔 Match ${bet.matchId}
+⚽ ${match.team1} 🆚 ${match.team2}
+🎯 Pick: ${bet.team}
+💰 ${bet.amount} coins
+
+`;
+
+    }
+
+  });
+
+  return message.reply(text);
+}
   });
 
 // ======================
