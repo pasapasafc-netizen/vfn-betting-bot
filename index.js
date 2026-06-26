@@ -404,6 +404,54 @@ if (command === "leaderboard") {
 
   return message.reply(text);
 }
+  // ======================
+// !cancelbet
+// ======================
+if (command === "cancelbet") {
+
+  const matchId = parseInt(args[0]);
+
+  if (!matchId) {
+    return message.reply("Usage: !cancelbet MatchID");
+  }
+
+  const matches = loadMatches();
+  const bets = loadBets();
+
+  const match = matches.find(m => m.id === matchId);
+
+  if (!match) {
+    return message.reply("❌ Match not found.");
+  }
+
+  if (match.status !== "OPEN") {
+    return message.reply("❌ Betting is already closed.");
+  }
+
+  const betIndex = bets.findIndex(
+    b => b.user === message.author.id && b.matchId === matchId
+  );
+
+  if (betIndex === -1) {
+    return message.reply("❌ You don't have a bet on this match.");
+  }
+
+  const bet = bets[betIndex];
+
+  user.coins += bet.amount;
+  saveUsers(users);
+
+  bets.splice(betIndex, 1);
+  saveBets(bets);
+
+  return message.reply(
+`✅ Bet Cancelled!
+
+💰 Refunded: ${bet.amount} coins
+
+🏦 New Balance: ${user.coins} coins`
+  );
+}
   });
 
 // ======================
