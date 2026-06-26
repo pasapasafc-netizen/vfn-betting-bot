@@ -172,6 +172,9 @@ const odds2 = parseFloat(args[3]);
 📈 Odds
 🔵 ${team1}: ${odds1}x
 🔴 ${team2}: ${odds2}x
+`
+  );
+}
 
   // ======================
   // !matches
