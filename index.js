@@ -14,6 +14,9 @@ const client = new Client({
 
 const PREFIX = "!";
 
+// ======================
+// USER FUNCTIONS
+// ======================
 function getUser(users, userId) {
   if (!users[userId]) {
     users[userId] = {
@@ -26,6 +29,9 @@ function getUser(users, userId) {
   return users[userId];
 }
 
+// ======================
+// MATCH FUNCTIONS
+// ======================
 function loadMatches() {
   if (!fs.existsSync("./matches.json")) {
     fs.writeFileSync("./matches.json", "[]");
@@ -34,10 +40,23 @@ function loadMatches() {
   return JSON.parse(fs.readFileSync("./matches.json", "utf8"));
 }
 
+function saveMatches(matches) {
+  fs.writeFileSync(
+    "./matches.json",
+    JSON.stringify(matches, null, 2)
+  );
+}
+
+// ======================
+// BOT READY
+// ======================
 client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
+// ======================
+// COMMANDS
+// ======================
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   if (!message.content.startsWith(PREFIX)) return;
@@ -67,7 +86,7 @@ client.on("messageCreate", async (message) => {
 !balance - View your balance
 !daily - Claim 500 coins
 !creatematch Team1 Team2
-!matches - View all open matches`
+!matches - View all matches`
     );
   }
 
@@ -106,7 +125,7 @@ client.on("messageCreate", async (message) => {
     saveUsers(users);
 
     return message.reply(
-      `🎉 You claimed **500 coins!**\n💰 Balance: **${user.coins.toLocaleString()}** coins.`
+      `🎉 You claimed **500 coins!**\n💰 New Balance: **${user.coins.toLocaleString()}** coins.`
     );
   }
 
@@ -118,13 +137,28 @@ client.on("messageCreate", async (message) => {
     const team2 = args[1];
 
     if (!team1 || !team2) {
-      return message.reply("Usage: !creatematch Team1 Team2");
+      return message.reply(
+        "Usage: !creatematch Team1 Team2"
+      );
     }
+
+    const matches = loadMatches();
+
+    const id = matches.length + 1;
+
+    matches.push({
+      id,
+      team1,
+      team2,
+      status: "OPEN"
+    });
+
+    saveMatches(matches);
 
     return message.reply(
 `✅ Match Created!
 
-🆔 ID: 1
+🆔 ID: ${id}
 
 ⚽ ${team1} 🆚 ${team2}
 
@@ -157,4 +191,7 @@ client.on("messageCreate", async (message) => {
   }
 });
 
+// ======================
+// LOGIN
+// ======================
 client.login(process.env.DISCORD_TOKEN);
