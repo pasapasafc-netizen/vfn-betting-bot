@@ -39,12 +39,16 @@ client.on("messageCreate", async (message) => {
   const users = loadUsers();
   const user = getUser(users, message.author.id);
 
+  // ======================
   // !ping
+  // ======================
   if (command === "ping") {
     return message.reply("🏓 Pong!");
   }
 
+  // ======================
   // !help
+  // ======================
   if (command === "help") {
     return message.reply(
 `📖 **Betting Bot Commands**
@@ -52,18 +56,23 @@ client.on("messageCreate", async (message) => {
 !ping - Check bot latency
 !help - Show this menu
 !balance - View your coin balance
-!daily - Claim 500 coins every 24 hours`
+!daily - Claim 500 coins every 24 hours
+!creatematch Team1 Team2 - Create a match`
     );
   }
 
+  // ======================
   // !balance
+  // ======================
   if (command === "balance") {
     return message.reply(
       `💰 You currently have **${user.coins.toLocaleString()}** coins.`
     );
   }
 
+  // ======================
   // !daily
+  // ======================
   if (command === "daily") {
     const now = Date.now();
     const cooldown = 24 * 60 * 60 * 1000;
@@ -90,28 +99,30 @@ client.on("messageCreate", async (message) => {
       `🎉 You claimed your daily reward of **500 coins**!\n💰 New Balance: **${user.coins.toLocaleString()}** coins.`
     );
   }
-});
-// !creatematch
-if (command === "creatematch") {
 
+  // ======================
+  // !creatematch
+  // ======================
+  if (command === "creatematch") {
     const team1 = args[0];
     const team2 = args[1];
 
     if (!team1 || !team2) {
-        return message.reply(
-            "Usage: !creatematch Team1 Team2"
-        );
+      return message.reply(
+        "Usage: !creatematch Team1 Team2"
+      );
     }
 
     return message.reply(
-`✅ Match Created!
+`✅ **Match Created!**
 
-🆔 ID: 1
+🆔 ID: **1**
 
-⚽ ${team1} 🆚 ${team2}
+⚽ **${team1}** 🆚 **${team2}**
 
-Status: OPEN`
+📊 Status: **OPEN**`
     );
-}
+  }
+});
 
 client.login(process.env.DISCORD_TOKEN);
