@@ -23,7 +23,7 @@ const PREFIX = "!";
 // USER FUNCTIONS
 // ======================
 function getUser(users, userId) {
-  if users[userId] = {
+ if (!users[userId]) { 
   coins: 0,
   lastDaily: 0,
   wins: 0,
@@ -545,9 +545,4 @@ if (command === "betslip") {
 // ======================
 // LOGIN
 // ======================
-client.login(process.env.DISCORD_TOKEN);
-
-// ======================
-// LOGIN
-// ======================
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN) ;
