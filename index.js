@@ -1,172 +1,79 @@
 require("dotenv").config();
 
-const {
-  Client,
-  GatewayIntentBits,
-  EmbedBuilder
-} = require("discord.js");
-const { loadUsers, saveUsers } = require("./db");
-const { loadBets, saveBets } = require("./betDb");
-const fs = require("fs");
+const {Client,GatewayIntentBits,EmbedBuilder} = require("discord.js");const { loadUsers, saveUsers } = require("./db");const { loadBets, saveBets } = require("./betDb");const fs = require("fs");
 
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-  ],
-});
+const client = new Client({intents: [GatewayIntentBits.Guilds,GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent,],});
 
 const PREFIX = "!";
 
-// ======================
-// USER FUNCTIONS
-// ======================
-function getUser(users, userId) {
- if (!users[userId]) { 
-  coins: 0,
-  lastDaily: 0,
-  wins: 0,
-  losses: 0,
-  wagered: 0,
-};
-    saveUsers(users);
-  }
+// ======================// USER FUNCTIONS// ======================function getUser(users, userId) {if (!users[userId]) {users[userId] = {coins: 0,lastDaily: 0,};saveUsers(users);}
 
-  return users[userId];
-}
+return users[userId];}
 
-// ======================
-// MATCH FUNCTIONS
-// ======================
-function loadMatches() {
-  if (!fs.existsSync("./matches.json")) {
-    fs.writeFileSync("./matches.json", "[]");
-  }
+// ======================// MATCH FUNCTIONS// ======================function loadMatches() {if (!fs.existsSync("./matches.json")) {fs.writeFileSync("./matches.json", "[]");}
 
-  return JSON.parse(fs.readFileSync("./matches.json", "utf8"));
-}
+return JSON.parse(fs.readFileSync("./matches.json", "utf8"));}
 
-function saveMatches(matches) {
-  fs.writeFileSync(
-    "./matches.json",
-    JSON.stringify(matches, null, 2)
+function saveMatches(matches) {fs.writeFileSync("./matches.json",JSON.stringify(matches, null, 2));}
+
+// ======================// BOT READY// ======================client.once("ready", () => {console.log(Logged in as ${client.user.tag});});
+
+// ======================// COMMAND HANDLER// ======================client.on("messageCreate", async (message) => {if (message.author.bot) return;if (!message.content.startsWith(PREFIX)) return;
+
+const args = message.content.slice(PREFIX.length).trim().split(/\s+/);const command = args.shift().toLowerCase();
+
+const users = loadUsers();const user = getUser(users, message.author.id);
+
+// ======================// !ping// ======================if (command === "ping") {return message.reply("🏓 Pong!");}
+
+// ======================// !help// ======================if (command === "help") {return message.reply(`📖 Betting Bot Commands
+
+!ping - Check bot latency!help - Show this menu!balance - View your balance!daily - Claim 500 coins every 24 hours!creatematch Team1 Team2!matches - View all matches`);}
+
+// ======================// !balance// ======================if (command === "balance") {return message.reply(💰 You currently have **${user.coins.toLocaleString()}** coins.);}
+
+// ======================// !daily// ======================if (command === "daily") {const now = Date.now();const cooldown = 24 * 60 * 60 * 1000;
+
+if (now - user.lastDaily < cooldown) {
+  const remaining = cooldown - (now - user.lastDaily);
+
+  const hours = Math.floor(remaining / (1000 * 60 * 60));
+  const minutes = Math.floor(
+    (remaining % (1000 * 60 * 60)) / (1000 * 60)
   );
-}
 
-// ======================
-// BOT READY
-// ======================
-client.once("ready", () => {
-  console.log(`Logged in as ${client.user.tag}`);
-});
-
-// ======================
-// COMMAND HANDLER
-// ======================
-client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
-  if (!message.content.startsWith(PREFIX)) return;
-
-  const args = message.content.slice(PREFIX.length).trim().split(/\s+/);
-  const command = args.shift().toLowerCase();
-
-  const users = loadUsers();
-  const user = getUser(users, message.author.id);
-
-  // ======================
-  // !ping
-  // ======================
-  if (command === "ping") {
-    return message.reply("🏓 Pong!");
-  }
-
-  // ======================
-  // !help
-  // ======================
-  if (command === "help") {
-    return message.reply(
-`📖 **Betting Bot Commands**
-
-!ping - Check bot latency
-!help - Show this menu
-!balance - View your balance
-!daily - Claim 500 coins every 24 hours
-!creatematch Team1 Team2
-!matches - View all matches`
-    );
-  }
-
-  // ======================
-  // !balance
-  // ======================
-  if (command === "balance") {
-    return message.reply(
-      `💰 You currently have **${user.coins.toLocaleString()}** coins.`
-    );
-  }
-
-  // ======================
-  // !daily
-  // ======================
-  if (command === "daily") {
-    const now = Date.now();
-    const cooldown = 24 * 60 * 60 * 1000;
-
-    if (now - user.lastDaily < cooldown) {
-      const remaining = cooldown - (now - user.lastDaily);
-
-      const hours = Math.floor(remaining / (1000 * 60 * 60));
-      const minutes = Math.floor(
-        (remaining % (1000 * 60 * 60)) / (1000 * 60)
-      );
-
-      return message.reply(
-        `⏳ You already claimed your daily reward.\nCome back in **${hours}h ${minutes}m**.`
-      );
-    }
-
-    user.coins += 500;
-    user.lastDaily = now;
-
-    saveUsers(users);
-
-    return message.reply(
-      `🎉 You claimed **500 coins!**\n💰 New Balance: **${user.coins.toLocaleString()}** coins.`
-    );
-  }
-
-  // ======================
-  // !creatematch
-  // ======================
-  if (command === "creatematch") {
-    const team1 = args[0];
-const team2 = args[1];
-const odds1 = parseFloat(args[2]);
-const odds2 = parseFloat(args[3]);
-
-   if (!team1 || !team2 || !odds1 || !odds2) {
   return message.reply(
-    "Usage: !creatematch Team1 Team2 Odds1 Odds2\nExample: !creatematch Barcelona RealMadrid 1.85 2.30"
+    `⏳ You already claimed your daily reward.\nCome back in **${hours}h ${minutes}m**.`
   );
-} 
+}
 
-    const matches = loadMatches();
+user.coins += 500;
+user.lastDaily = now;
 
-    const id = matches.length + 1;
+saveUsers(users);
 
-    matches.push({
-  id,
-  team1,
-  team2,
-  odds1,
-  odds2,
-  status: "OPEN"
-});
+return message.reply(
+  `🎉 You claimed **500 coins!**\n💰 New Balance: **${user.coins.toLocaleString()}** coins.`
+);
 
-    saveMatches(matches);
+}
 
-    return message.reply(
+// ======================// !creatematch// ======================if (command === "creatematch") {const team1 = args[0];const team2 = args[1];const odds1 = parseFloat(args[2]);const odds2 = parseFloat(args[3]);
+
+if (!team1 || !team2 || !odds1 || !odds2) {return message.reply("Usage: !creatematch Team1 Team2 Odds1 Odds2\nExample: !creatematch Barcelona RealMadrid 1.85 2.30");}
+
+const matches = loadMatches();
+
+const id = matches.length + 1;
+
+matches.push({
+
+id,team1,team2,odds1,odds2,status: "OPEN"});
+
+saveMatches(matches);
+
+return message.reply(
+
 `✅ Match Created!
 
 🆔 ID: ${id}
@@ -175,91 +82,53 @@ const odds2 = parseFloat(args[3]);
 
 📊 Status: OPEN
 
-📈 Odds
-🔵 ${team1}: ${odds1}x
-🔴 ${team2}: ${odds2}x
-`
-  );
+📈 Odds🔵 ${team1}: ${odds1}x🔴 ${team2}: ${odds2}x`);}
+
+// ======================// !matches// ======================if (command === "matches") {const matches = loadMatches();
+
+if (matches.length === 0) {
+  return message.reply("❌ No matches available.");
 }
 
-  // ======================
-  // !matches
-  // ======================
-  if (command === "matches") {
-    const matches = loadMatches();
+let text = "📋 **Open Matches**\n\n";
 
-    if (matches.length === 0) {
-      return message.reply("❌ No matches available.");
-    }
+matches.forEach(match => {
+  text +=
 
-    let text = "📋 **Open Matches**\n\n";
+`🆔 ${match.id}⚽ ${match.team1} 🆚 ${match.team2}📊 Status: ${match.status}
 
-    matches.forEach(match => {
-      text +=
-`🆔 ${match.id}
-⚽ ${match.team1} 🆚 ${match.team2}
-📊 Status: ${match.status}
+`;});
 
-`;
-    });
+return message.reply(text);
 
-    return message.reply(text);
-  }
+}
 
-// ======================
-// !bet
-// ======================
-  if (command === "bet") {
+// ======================// !bet// ======================
+if (command === "bet") {
 
-  const matchId = parseInt(args[0]);
-  const team = args[1];
-  const amount = parseInt(args[2]);
+const matchId = parseInt(args[0]);const team = args[1];const amount = parseInt(args[2]);
 
-  if (!matchId || !team || !amount) {
-    return message.reply(
-      "Usage: !bet MatchID Team Amount\nExample: !bet 1 Barcelona 500"
-    );
-  }
+if (!matchId || !team || !amount) {return message.reply("Usage: !bet MatchID Team Amount\nExample: !bet 1 Barcelona 500");}
 
-  const matches = loadMatches();
-  const bets = loadBets();
+const matches = loadMatches();const bets = loadBets();
 
-  const match = matches.find(m => m.id === matchId);
+const match = matches.find(m => m.id === matchId);
 
-  if (!match) {
-    return message.reply("❌ Match not found.");
-  }
+if (!match) {return message.reply("❌ Match not found.");}
 
-  if (match.status !== "OPEN") {
-    return message.reply("❌ Betting is closed for this match.");
-  }
+if (match.status !== "OPEN") {return message.reply("❌ Betting is closed for this match.");}
 
-  if (
-    team.toLowerCase() !== match.team1.toLowerCase() &&
-    team.toLowerCase() !== match.team2.toLowerCase()
-  ) {
-    return message.reply("❌ Choose one of the two teams playing.");
-  }
+if (team.toLowerCase() !== match.team1.toLowerCase() &&team.toLowerCase() !== match.team2.toLowerCase()) {return message.reply("❌ Choose one of the two teams playing.");}
 
-  if (user.coins < amount) {
-    return message.reply("❌ You don't have enough coins.");
-  }
+if (user.coins < amount) {return message.reply("❌ You don't have enough coins.");}
 
-  user.coins -= amount;
-user.wagered += amount;
-  saveUsers(users);
+user.coins -= amount;saveUsers(users);
 
-  bets.push({
-    user: message.author.id,
-    matchId,
-    team,
-    amount
-  });
+bets.push({user: message.author.id,matchId,team,amount});
 
-  saveBets(bets);
+saveBets(bets);
 
-  return message.reply(
-`✅ Bet Placed!
+return message.reply(`✅ Bet Placed!
 
 🆔 Match ID: ${matchId}
 
@@ -269,254 +138,168 @@ user.wagered += amount;
 
 💰 Amount: ${amount} coins
 
-🏦 Remaining Balance: ${user.coins}`
-  );
+🏦 Remaining Balance: ${user.coins}`);}// ======================// !closematch// ======================if (command === "closematch") {
+
+const matchId = parseInt(args[0]);
+if (!matchId) {
+  return message.reply("Usage: !closematch MatchID");
 }
-  // ======================
-  // !closematch
-  // ======================
-  if (command === "closematch") {
 
-    const matchId = parseInt(args[0]);
+const matches = loadMatches();
 
-    if (!matchId) {
-      return message.reply("Usage: !closematch MatchID");
-    }
+const match = matches.find(m => m.id === matchId);
 
-    const matches = loadMatches();
-
-    const match = matches.find(m => m.id === matchId);
-
-    if (!match) {
-      return message.reply("❌ Match not found.");
-    }
-
-    match.status = "CLOSED";
-
-    saveMatches(matches);
-
-    return message.reply(
-      `🔒 Match ${matchId} has been closed.\nNo more bets can be placed.`
-    );
-  }
-  // ======================
-// !result
-// ======================
-if (command === "result") {
-
-  const matchId = parseInt(args[0]);
-  const winner = args[1];
-
-  if (!matchId || !winner) {
-    return message.reply(
-      "Usage: !result MatchID Winner\nExample: !result 1 Barcelona"
-    );
-  }
-
-  const matches = loadMatches();
-  const bets = loadBets();
-
-  const match = matches.find(m => m.id === matchId);
-
-  if (!match) {
-    return message.reply("❌ Match not found.");
-  }
-if (match.status === "FINISHED") {
-  return message.reply("❌ This match already has a result.");
+if (!match) {
+  return message.reply("❌ Match not found.");
 }
-  match.status = "FINISHED";
 
-  let winners = 0;
-  let winnerList = "";
+match.status = "CLOSED";
 
-  bets.forEach(bet => {
+saveMatches(matches);
 
-    if (
-      bet.matchId === matchId &&
-      bet.team.toLowerCase() === winner.toLowerCase()
-    ) 
-      const users = loadUsers();
-
-      if (users[bet.user]) {
-
-        const multiplier =
-  bet.team.toLowerCase() === match.team1.toLowerCase()
-    ? match.odds1
-    : match.odds2;
-
-users[bet.user].coins += Math.floor(bet.amount * multiplier);
-users[bet.user].wins++;
-        saveUsers(users);
-
-        winners++;
-        winnerList += `<@${bet.user}> won ${Math.floor(bet.amount * multiplier)} coins\n`;
-      }
-
-    }
-
-  });
-const remainingBets = bets.filter(
-  bet => bet.matchId !== matchId
+return message.reply(
+  `🔒 Match ${matchId} has been closed.\nNo more bets can be placed.`
 );
 
-saveBets(remainingBets);
-  saveMatches(matches);
+}// ======================// !result// ======================if (command === "result") {
 
-  return message.reply(
-`🏆 Result Recorded!
+const matchId = parseInt(args[0]);const winner = args[1];
 
-⚽ Winner: ${winner}
+if (!matchId || !winner) {return message.reply("Usage: !result MatchID Winner\nExample: !result 1 Barcelona");}
 
-🥇 Winners Paid:
-${winnerList || "No winners"}
+const matches = loadMatches();const bets = loadBets();
 
-👥 Total Winners: ${winners}
+const match = matches.find(m => m.id === matchId);
 
-✅ Match Finished`
-);
-}
-  // ======================
-// !mybets
-// ======================
-if (command === "mybets") {
+if (!match) {return message.reply("❌ Match not found.");}
 
-  const bets = loadBets();
+match.status = "FINISHED";
 
-  const myBets = bets.filter(
-    bet => bet.user === message.author.id
-  );
+let winners = 0;
 
-  if (myBets.length === 0) {
-    return message.reply("❌ You haven't placed any bets.");
-  }
+bets.forEach(bet => {
 
-  const matches = loadMatches();
-
-  let text = "📋 **Your Bets**\n\n";
-
-  myBets.forEach(bet => {
-
-    const match = matches.find(
-      m => m.id === bet.matchId
-    );
-
-    if (match) {
-
-      text +=
-`🆔 Match ${bet.matchId}
-⚽ ${match.team1} 🆚 ${match.team2}
-🎯 Pick: ${bet.team}
-💰 ${bet.amount} coins
-
-`;
-
-    }
-
-  });
-
-  return message.reply(text);
-}
-  // ======================
-// !leaderboard
-// ======================
-if (command === "leaderboard") {
+if (
+  bet.matchId === matchId &&
+  bet.team.toLowerCase() === winner.toLowerCase()
+) {
 
   const users = loadUsers();
 
-  const leaderboard = Object.entries(users)
-    .sort((a, b) => b[1].coins - a[1].coins)
-    .slice(0, 10);
+  if (users[bet.user]) {
 
-  let text = "🏆 **Coin Leaderboard**\n\n";
+    const multiplier =
 
-  leaderboard.forEach(([id, data], index) => {
-    text += `${index + 1}. <@${id}> - 💰 ${data.coins} coins\n`;
-  });
+bet.team.toLowerCase() === match.team1.toLowerCase()? match.odds1: match.odds2;
 
-  return message.reply(text);
+users[bet.user].coins += Math.floor(bet.amount * multiplier);
+
+    saveUsers(users);
+
+    winners++;
+  }
+  }
+
+});
+
+saveMatches(matches);
+
+return message.reply(`🏆 Result Recorded!
+
+⚽ Winner: ${winner}
+
+🥇 Paid ${winners} winner(s)
+
+💸 Winnings calculated using match odds.
+
+✅ Match Finished`);}// ======================// !mybets// ======================if (command === "mybets") {
+
+const bets = loadBets();
+
+const myBets = bets.filter(bet => bet.user === message.author.id);
+
+if (myBets.length === 0) {return message.reply("❌ You haven't placed any bets.");}
+
+const matches = loadMatches();
+
+let text = "📋 Your Bets\n\n";
+
+myBets.forEach(bet => {
+
+const match = matches.find(
+  m => m.id === bet.matchId
+);
+
+if (match) {
+
+  text +=
+
+`🆔 Match ${bet.matchId}⚽ ${match.team1} 🆚 ${match.team2}🎯 Pick: ${bet.team}💰 ${bet.amount} coins
+
+`;
+
 }
-  // ======================
-// !cancelbet
-// ======================
-if (command === "cancelbet") {
 
-  const matchId = parseInt(args[0]);
+});
 
-  if (!matchId) {
-    return message.reply("Usage: !cancelbet MatchID");
-  }
+return message.reply(text);}// ======================// !leaderboard// ======================if (command === "leaderboard") {
 
-  const matches = loadMatches();
-  const bets = loadBets();
+const users = loadUsers();
 
-  const match = matches.find(m => m.id === matchId);
+const leaderboard = Object.entries(users).sort((a, b) => b[1].coins - a[1].coins).slice(0, 10);
 
-  if (!match) {
-    return message.reply("❌ Match not found.");
-  }
+let text = "🏆 Coin Leaderboard\n\n";
 
-  if (match.status !== "OPEN") {
-    return message.reply("❌ Betting is already closed.");
-  }
+leaderboard.forEach(([id, data], index) => {text += ${index + 1}. <@${id}> - 💰 ${data.coins} coins\n;});
 
-  const betIndex = bets.findIndex(
-    b => b.user === message.author.id && b.matchId === matchId
-  );
+return message.reply(text);}// ======================// !cancelbet// ======================if (command === "cancelbet") {
 
-  if (betIndex === -1) {
-    return message.reply("❌ You don't have a bet on this match.");
-  }
+const matchId = parseInt(args[0]);
 
-  const bet = bets[betIndex];
+if (!matchId) {return message.reply("Usage: !cancelbet MatchID");}
 
-  user.coins += bet.amount;
-  saveUsers(users);
+const matches = loadMatches();const bets = loadBets();
 
-  bets.splice(betIndex, 1);
-  saveBets(bets);
+const match = matches.find(m => m.id === matchId);
 
-  return message.reply(
-`✅ Bet Cancelled!
+if (!match) {return message.reply("❌ Match not found.");}
+
+if (match.status !== "OPEN") {return message.reply("❌ Betting is already closed.");}
+
+const betIndex = bets.findIndex(b => b.user === message.author.id && b.matchId === matchId);
+
+if (betIndex === -1) {return message.reply("❌ You don't have a bet on this match.");}
+
+const bet = bets[betIndex];
+
+user.coins += bet.amount;saveUsers(users);
+
+bets.splice(betIndex, 1);saveBets(bets);
+
+return message.reply(`✅ Bet Cancelled!
 
 💰 Refunded: ${bet.amount} coins
 
-🏦 New Balance: ${user.coins} coins`
-  );
-}
-  // ======================
-// !betslip
-// ======================
-if (command === "betslip") {
+🏦 New Balance: ${user.coins} coins`);}// ======================// !betslip// ======================if (command === "betslip") {
 
-  const bets = loadBets();
+const bets = loadBets();
 
-  const bet = bets.find(
-    b => b.user === message.author.id
-  );
+const bet = bets.find(b => b.user === message.author.id);
 
-  if (!bet) {
-  return message.reply("❌ You don't have any active bets.");
-  }
-  
-  const matches = loadMatches();
+if (!bet) {return message.reply("❌ You don't have any active bets.");}
 
-  const match = matches.find(
-    m => m.id === bet.matchId
-  );
+const matches = loadMatches();
 
-  if (!match) {
-    return message.reply("❌ Match not found.");
-  }
+const match = matches.find(m => m.id === bet.matchId);
 
-  const odds =
-    bet.team.toLowerCase() === match.team1.toLowerCase()
-      ? match.odds1
-      : match.odds2;
+if (!match) {return message.reply("❌ Match not found.");}
 
-  const potentialWin = Math.floor(bet.amount * odds);
+const odds =bet.team.toLowerCase() === match.team1.toLowerCase()? match.odds1
+: match.odds2;
 
-  return message.reply(
-`🎟 **VFN BET SLIP**
+const potentialWin = Math.floor(bet.amount * odds);
+
+return message.reply(`🎟 VFN BET SLIP
 
 👤 ${message.author.username}
 
@@ -529,15 +312,8 @@ if (command === "betslip") {
 💰 Stake: ${bet.amount} coins
 
 📈 Odds: ${odds}x
-
 💵 Potential Win: ${potentialWin} coins
 
-📊 Status: ${match.status}`
-  );
-}
-  });
+📊 Status: ${match.status}`);}
 
-// ======================
-// LOGIN
-// ======================
-client.login(process.env.DISCORD_TOKEN);
+// ======================// LOGIN// ======================client.login(process.env.DISCORD_TOKEN);
