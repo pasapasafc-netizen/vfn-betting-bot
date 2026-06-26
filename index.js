@@ -327,7 +327,12 @@ if (command === "result") {
 
       if (users[bet.user]) {
 
-        users[bet.user].coins += bet.amount * 2;
+        const multiplier =
+  bet.team.toLowerCase() === match.team1.toLowerCase()
+    ? match.odds1
+    : match.odds2;
+
+users[bet.user].coins += Math.floor(bet.amount * multiplier);
 
         saveUsers(users);
 
@@ -345,7 +350,9 @@ if (command === "result") {
 
 ⚽ Winner: ${winner}
 
-💰 Paid ${winners} winner(s)
+🥇 Paid ${winners} winner(s)
+
+💸 Winnings calculated using match odds.
 
 ✅ Match Finished`
   );
