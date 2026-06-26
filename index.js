@@ -256,7 +256,6 @@ client.on("messageCreate", async (message) => {
 🏦 Remaining Balance: ${user.coins}`
   );
 }
-});
   // ======================
   // !closematch
   // ======================
@@ -284,6 +283,7 @@ client.on("messageCreate", async (message) => {
       `🔒 Match ${matchId} has been closed.\nNo more bets can be placed.`
     );
   }
+  });
 
 // ======================
 // LOGIN
