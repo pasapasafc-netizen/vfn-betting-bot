@@ -283,6 +283,67 @@ client.on("messageCreate", async (message) => {
       `🔒 Match ${matchId} has been closed.\nNo more bets can be placed.`
     );
   }
+  // ======================
+// !result
+// ======================
+if (command === "result") {
+
+  const matchId = parseInt(args[0]);
+  const winner = args[1];
+
+  if (!matchId || !winner) {
+    return message.reply(
+      "Usage: !result MatchID Winner\nExample: !result 1 Barcelona"
+    );
+  }
+
+  const matches = loadMatches();
+  const bets = loadBets();
+
+  const match = matches.find(m => m.id === matchId);
+
+  if (!match) {
+    return message.reply("❌ Match not found.");
+  }
+
+  match.status = "FINISHED";
+
+  let winners = 0;
+
+  bets.forEach(bet => {
+
+    if (
+      bet.matchId === matchId &&
+      bet.team.toLowerCase() === winner.toLowerCase()
+    ) {
+
+      const users = loadUsers();
+
+      if (users[bet.user]) {
+
+        users[bet.user].coins += bet.amount * 2;
+
+        saveUsers(users);
+
+        winners++;
+      }
+
+    }
+
+  });
+
+  saveMatches(matches);
+
+  return message.reply(
+`🏆 Result Recorded!
+
+⚽ Winner: ${winner}
+
+💰 Paid ${winners} winner(s)
+
+✅ Match Finished`
+  );
+}
   });
 
 // ======================
