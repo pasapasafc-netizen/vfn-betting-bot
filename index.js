@@ -135,24 +135,28 @@ client.on("messageCreate", async (message) => {
   // ======================
   if (command === "creatematch") {
     const team1 = args[0];
-    const team2 = args[1];
+const team2 = args[1];
+const odds1 = parseFloat(args[2]);
+const odds2 = parseFloat(args[3]);
 
-    if (!team1 || !team2) {
-      return message.reply(
-        "Usage: !creatematch Team1 Team2"
-      );
-    }
+   if (!team1 || !team2 || !odds1 || !odds2) {
+  return message.reply(
+    "Usage: !creatematch Team1 Team2 Odds1 Odds2\nExample: !creatematch Barcelona RealMadrid 1.85 2.30"
+  );
+} 
 
     const matches = loadMatches();
 
     const id = matches.length + 1;
 
     matches.push({
-      id,
-      team1,
-      team2,
-      status: "OPEN"
-    });
+  id,
+  team1,
+  team2,
+  odds1,
+  odds2,
+  status: "OPEN"
+});
 
     saveMatches(matches);
 
@@ -163,9 +167,11 @@ client.on("messageCreate", async (message) => {
 
 ⚽ ${team1} 🆚 ${team2}
 
-📊 Status: OPEN`
-    );
-  }
+📊 Status: OPEN
+
+📈 Odds
+🔵 ${team1}: ${odds1}x
+🔴 ${team2}: ${odds2}x
 
   // ======================
   // !matches
