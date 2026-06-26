@@ -1,6 +1,10 @@
 require("dotenv").config();
 
-const { Client, GatewayIntentBits } = require("discord.js");
+const {
+  Client,
+  GatewayIntentBits,
+  EmbedBuilder
+} = require("discord.js");
 const { loadUsers, saveUsers } = require("./db");
 const { loadBets, saveBets } = require("./betDb");
 const fs = require("fs");
