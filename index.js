@@ -524,7 +524,12 @@ if (command === "betslip") {
 📊 Status: ${match.status}`
   );
 }
-  
+  });
+
+// ======================
+// LOGIN
+// ======================
+client.login(process.env.DISCORD_TOKEN);
 
 // ======================
 // LOGIN
