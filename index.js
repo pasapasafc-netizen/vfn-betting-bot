@@ -11,3 +11,10 @@ client.once('ready', () => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+client.on('messageCreate', message => {
+  if (message.author.bot) return;
+
+  if (message.content === '!ping') {
+    message.reply('🏆 VFN Betting Bot is online!');
+  }
+});
