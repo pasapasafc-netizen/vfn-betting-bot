@@ -10,6 +10,10 @@ const { loadUsers, saveUsers } = require("./db");
 const { loadBets, saveBets } = require("./betDb");
 const fs = require("fs");
 
+// ======================
+// BOT
+// ======================
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -21,11 +25,13 @@ const client = new Client({
 const PREFIX = "!";
 
 // ======================
-// USER FUNCTIONS
+// USER DATABASE
 // ======================
 
 function getUser(users, userId) {
+
   if (!users[userId]) {
+
     users[userId] = {
       coins: 0,
       lastDaily: 0,
@@ -35,30 +41,41 @@ function getUser(users, userId) {
     };
 
     saveUsers(users);
+
   }
 
   return users[userId];
+
 }
 
 // ======================
-// MATCH FUNCTIONS
+// MATCH DATABASE
 // ======================
 
 function loadMatches() {
+
   if (!fs.existsSync("./matches.json")) {
-    fs.writeFileSync("./matches.json", "[]");
+
+    fs.writeFileSync(
+      "./matches.json",
+      "[]"
+    );
+
   }
 
   return JSON.parse(
     fs.readFileSync("./matches.json", "utf8")
   );
+
 }
 
 function saveMatches(matches) {
+
   fs.writeFileSync(
     "./matches.json",
     JSON.stringify(matches, null, 2)
   );
+
 }
 
 // ======================
@@ -66,7 +83,11 @@ function saveMatches(matches) {
 // ======================
 
 client.once("ready", () => {
-  console.log(`Logged in as ${client.user.tag}`);
+
+  console.log(
+    `✅ ${client.user.tag} is online!`
+  );
+
 });
 
 // ======================
@@ -87,44 +108,105 @@ client.on("messageCreate", async (message) => {
   const command = args.shift().toLowerCase();
 
   const users = loadUsers();
-  const user = getUser(users, message.author.id);
+
+  const user = getUser(
+    users,
+    message.author.id
+  );
     // ======================
   // !ping
   // ======================
   if (command === "ping") {
-    return message.reply("🏓 Pong!");
+
+    const embed = new EmbedBuilder()
+      .setColor("#00C853")
+      .setTitle("🏓 Pong!")
+      .setDescription("VFN Betting Bot is online.")
+      .setFooter({
+        text: "VFN Betting Bot",
+      })
+      .setTimestamp();
+
+    return message.reply({
+      embeds: [embed],
+    });
+
   }
 
   // ======================
   // !help
   // ======================
   if (command === "help") {
-    return message.reply(
-`📖 **VFN Betting Commands**
 
-!ping
-!help
-!balance
-!daily
-!creatematch
-!matches
-!bet
-!mybets
-!betslip
-!cancelbet
-!closematch
-!result
-!leaderboard`
-    );
+    const embed = new EmbedBuilder()
+      .setColor("#0099FF")
+      .setTitle("📖 VFN Betting Commands")
+      .setDescription("Available commands")
+      .addFields(
+        {
+          name: "💰 Economy",
+          value:
+            "`!daily`\n`!balance`",
+          inline: true,
+        },
+        {
+          name: "⚽ Betting",
+          value:
+            "`!creatematch`\n`!matches`\n`!bet`\n`!betslip`\n`!mybets`",
+          inline: true,
+        },
+        {
+          name: "👑 Admin",
+          value:
+            "`!closematch`\n`!result`\n`!leaderboard`",
+          inline: true,
+        }
+      )
+      .setFooter({
+        text: "VFN Betting Bot",
+      })
+      .setTimestamp();
+
+    return message.reply({
+      embeds: [embed],
+    });
+
   }
 
   // ======================
   // !balance
   // ======================
   if (command === "balance") {
-    return message.reply(
-      `💰 Balance: **${user.coins.toLocaleString()}** coins`
-    );
+
+    const embed = new EmbedBuilder()
+      .setColor("#FFD700")
+      .setTitle("💰 Wallet")
+      .addFields(
+        {
+          name: "Coins",
+          value: `${user.coins.toLocaleString()}`,
+          inline: true,
+        },
+        {
+          name: "Wins",
+          value: `${user.wins}`,
+          inline: true,
+        },
+        {
+          name: "Losses",
+          value: `${user.losses}`,
+          inline: true,
+        }
+      )
+      .setFooter({
+        text: "VFN Betting Bot",
+      })
+      .setTimestamp();
+
+    return message.reply({
+      embeds: [embed],
+    });
+
   }
 
   // ======================
@@ -137,7 +219,8 @@ client.on("messageCreate", async (message) => {
 
     if (now - user.lastDaily < cooldown) {
 
-      const remaining = cooldown - (now - user.lastDaily);
+      const remaining =
+        cooldown - (now - user.lastDaily);
 
       const hours = Math.floor(
         remaining / (1000 * 60 * 60)
@@ -145,12 +228,24 @@ client.on("messageCreate", async (message) => {
 
       const minutes = Math.floor(
         (remaining % (1000 * 60 * 60)) /
-        (1000 * 60)
+          (1000 * 60)
       );
 
-      return message.reply(
-        `⏳ Come back in ${hours}h ${minutes}m`
-      );
+      const embed = new EmbedBuilder()
+        .setColor("#FF9800")
+        .setTitle("⏳ Daily Cooldown")
+        .setDescription(
+          `Come back in **${hours}h ${minutes}m**`
+        )
+        .setFooter({
+          text: "VFN Betting Bot",
+        })
+        .setTimestamp();
+
+      return message.reply({
+        embeds: [embed],
+      });
+
     }
 
     user.coins += 500;
@@ -158,9 +253,33 @@ client.on("messageCreate", async (message) => {
 
     saveUsers(users);
 
-    return message.reply(
-      `🎉 Daily claimed!\n💰 Balance: ${user.coins.toLocaleString()} coins`
-    );
+    const embed = new EmbedBuilder()
+      .setColor("#00C853")
+      .setTitle("🎁 Daily Reward")
+      .setDescription(
+        "You claimed your daily reward!"
+      )
+      .addFields(
+        {
+          name: "Reward",
+          value: "500 Coins",
+          inline: true,
+        },
+        {
+          name: "New Balance",
+          value: `${user.coins.toLocaleString()} Coins`,
+          inline: true,
+        }
+      )
+      .setFooter({
+        text: "VFN Betting Bot",
+      })
+      .setTimestamp();
+
+    return message.reply({
+      embeds: [embed],
+    });
+
   }
     // ======================
   // !creatematch
@@ -173,9 +292,18 @@ client.on("messageCreate", async (message) => {
     const odds2 = parseFloat(args[3]);
 
     if (!team1 || !team2 || !odds1 || !odds2) {
-      return message.reply(
-        "Usage: !creatematch Team1 Team2 Odds1 Odds2\nExample: !creatematch Barcelona RealMadrid 1.85 2.30"
-      );
+
+      const embed = new EmbedBuilder()
+        .setColor("#E53935")
+        .setTitle("❌ Invalid Usage")
+        .setDescription(
+          "`!creatematch Team1 Team2 Odds1 Odds2`\n\nExample:\n`!creatematch Barcelona RealMadrid 1.85 2.30`"
+        );
+
+      return message.reply({
+        embeds: [embed],
+      });
+
     }
 
     const matches = loadMatches();
@@ -195,7 +323,7 @@ client.on("messageCreate", async (message) => {
 
     const embed = new EmbedBuilder()
       .setColor("#00C853")
-      .setTitle("⚽ Match Created")
+      .setTitle("⚽ New Match Created")
       .addFields(
         {
           name: "🆔 Match ID",
@@ -203,16 +331,17 @@ client.on("messageCreate", async (message) => {
           inline: true,
         },
         {
-          name: "⚔️ Match",
+          name: "⚔️ Fixture",
           value: `${team1} 🆚 ${team2}`,
         },
         {
           name: "📈 Odds",
-          value: `🔵 ${team1}: ${odds1}x\n🔴 ${team2}: ${odds2}x`,
+          value:
+            `🔵 ${team1}: **${odds1}x**\n🔴 ${team2}: **${odds2}x**`,
         },
         {
           name: "📊 Status",
-          value: "OPEN",
+          value: "🟢 OPEN",
           inline: true,
         }
       )
@@ -224,6 +353,7 @@ client.on("messageCreate", async (message) => {
     return message.reply({
       embeds: [embed],
     });
+
   }
 
   // ======================
@@ -234,22 +364,46 @@ client.on("messageCreate", async (message) => {
     const matches = loadMatches();
 
     if (matches.length === 0) {
-      return message.reply("❌ No matches available.");
+
+      const embed = new EmbedBuilder()
+        .setColor("#E53935")
+        .setTitle("📋 Matches")
+        .setDescription("There are currently no matches.");
+
+      return message.reply({
+        embeds: [embed],
+      });
+
     }
 
-    let text = "📋 **Open Matches**\n\n";
+    const embed = new EmbedBuilder()
+      .setColor("#1E88E5")
+      .setTitle("📋 Open Matches");
 
     matches.forEach(match => {
-      text +=
-`🆔 ${match.id}
-⚽ ${match.team1} 🆚 ${match.team2}
-📈 ${match.odds1}x | ${match.odds2}x
-📊 ${match.status}
 
-`;
+      embed.addFields({
+        name: `🆔 Match #${match.id}`,
+        value:
+`⚽ ${match.team1} 🆚 ${match.team2}
+
+📈 ${match.odds1}x | ${match.odds2}x
+
+📊 ${match.status}`,
+      });
+
     });
 
-    return message.reply(text);
+    embed
+      .setFooter({
+        text: "VFN Betting Bot",
+      })
+      .setTimestamp();
+
+    return message.reply({
+      embeds: [embed],
+    });
+
   }
     // ======================
   // !bet
@@ -261,9 +415,16 @@ client.on("messageCreate", async (message) => {
     const amount = parseInt(args[2]);
 
     if (!matchId || !team || !amount) {
-      return message.reply(
-        "Usage: !bet MatchID Team Amount"
-      );
+
+      const embed = new EmbedBuilder()
+        .setColor("#E53935")
+        .setTitle("❌ Invalid Bet")
+        .setDescription(
+          "`!bet MatchID Team Amount`\n\nExample:\n`!bet 1 Barcelona 500`"
+        );
+
+      return message.reply({ embeds: [embed] });
+
     }
 
     const matches = loadMatches();
@@ -274,28 +435,46 @@ client.on("messageCreate", async (message) => {
     );
 
     if (!match) {
-      return message.reply("❌ Match not found.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#E53935")
+            .setTitle("❌ Match Not Found")
+        ]
+      });
     }
 
     if (match.status !== "OPEN") {
-      return message.reply(
-        "❌ Betting is closed."
-      );
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#E53935")
+            .setTitle("🔒 Betting Closed")
+        ]
+      });
     }
 
     if (
       team.toLowerCase() !== match.team1.toLowerCase() &&
       team.toLowerCase() !== match.team2.toLowerCase()
     ) {
-      return message.reply(
-        "❌ Choose one of the two teams."
-      );
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#E53935")
+            .setTitle("❌ Invalid Team")
+        ]
+      });
     }
 
     if (user.coins < amount) {
-      return message.reply(
-        "❌ You don't have enough coins."
-      );
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#E53935")
+            .setTitle("💸 Not Enough Coins")
+        ]
+      });
     }
 
     user.coins -= amount;
@@ -307,22 +486,44 @@ client.on("messageCreate", async (message) => {
       user: message.author.id,
       matchId,
       team,
-      amount,
+      amount
     });
 
     saveBets(bets);
 
-    return message.reply(
-`✅ Bet Placed!
+    const embed = new EmbedBuilder()
+      .setColor("#00C853")
+      .setTitle("🎯 Bet Placed")
+      .addFields(
+        {
+          name: "⚽ Match",
+          value: `${match.team1} 🆚 ${match.team2}`
+        },
+        {
+          name: "🎯 Pick",
+          value: team,
+          inline: true
+        },
+        {
+          name: "💰 Stake",
+          value: `${amount} Coins`,
+          inline: true
+        },
+        {
+          name: "🏦 Balance",
+          value: `${user.coins.toLocaleString()} Coins`,
+          inline: true
+        }
+      )
+      .setFooter({
+        text: "VFN Betting Bot"
+      })
+      .setTimestamp();
 
-🆔 Match: ${matchId}
+    return message.reply({
+      embeds: [embed]
+    });
 
-🎯 Pick: ${team}
-
-💰 Stake: ${amount}
-
-🏦 Balance: ${user.coins}`
-    );
   }
 
   // ======================
@@ -337,14 +538,22 @@ client.on("messageCreate", async (message) => {
     );
 
     if (myBets.length === 0) {
-      return message.reply(
-        "❌ No active bets."
-      );
+
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#E53935")
+            .setTitle("🎟 No Active Bets")
+        ]
+      });
+
     }
 
     const matches = loadMatches();
 
-    let text = "🎟 **Your Bets**\n\n";
+    const embed = new EmbedBuilder()
+      .setColor("#1E88E5")
+      .setTitle("🎟 My Bets");
 
     myBets.forEach(bet => {
 
@@ -354,17 +563,28 @@ client.on("messageCreate", async (message) => {
 
       if (!match) return;
 
-      text +=
-`🆔 ${bet.matchId}
-⚽ ${match.team1} 🆚 ${match.team2}
-🎯 ${bet.team}
-💰 ${bet.amount} coins
+      embed.addFields({
+        name: `🆔 Match #${bet.matchId}`,
+        value:
+`⚽ ${match.team1} 🆚 ${match.team2}
 
-`;
+🎯 Pick: ${bet.team}
+
+💰 Stake: ${bet.amount} Coins`
+      });
 
     });
 
-    return message.reply(text);
+    embed
+      .setFooter({
+        text: "VFN Betting Bot"
+      })
+      .setTimestamp();
+
+    return message.reply({
+      embeds: [embed]
+    });
+
   }
     // ======================
   // !betslip
@@ -378,7 +598,14 @@ client.on("messageCreate", async (message) => {
     );
 
     if (!bet) {
-      return message.reply("❌ You don't have any active bets.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#E53935")
+            .setTitle("🎟 No Active Bet")
+            .setDescription("You don't have any active bets.")
+        ]
+      });
     }
 
     const matches = loadMatches();
@@ -386,10 +613,6 @@ client.on("messageCreate", async (message) => {
     const match = matches.find(
       m => m.id === bet.matchId
     );
-
-    if (!match) {
-      return message.reply("❌ Match not found.");
-    }
 
     const odds =
       bet.team.toLowerCase() === match.team1.toLowerCase()
@@ -401,8 +624,8 @@ client.on("messageCreate", async (message) => {
     );
 
     const embed = new EmbedBuilder()
-      .setColor("#00C853")
-      .setTitle("🎟 VFN BET SLIP")
+      .setColor("#8E24AA")
+      .setTitle("🎟 VFN Bet Slip")
       .addFields(
         {
           name: "⚽ Match",
@@ -415,7 +638,7 @@ client.on("messageCreate", async (message) => {
         },
         {
           name: "💰 Stake",
-          value: `${bet.amount} coins`,
+          value: `${bet.amount} Coins`,
           inline: true
         },
         {
@@ -425,7 +648,7 @@ client.on("messageCreate", async (message) => {
         },
         {
           name: "🏆 Potential Win",
-          value: `${potentialWin} coins`
+          value: `${potentialWin} Coins`
         },
         {
           name: "📊 Status",
@@ -441,6 +664,53 @@ client.on("messageCreate", async (message) => {
     return message.reply({
       embeds: [embed]
     });
+
+  }
+
+  // ======================
+  // !cancelbet
+  // ======================
+  if (command === "cancelbet") {
+
+    const matchId = parseInt(args[0]);
+
+    const bets = loadBets();
+
+    const index = bets.findIndex(
+      b =>
+        b.user === message.author.id &&
+        b.matchId === matchId
+    );
+
+    if (index === -1) {
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#E53935")
+            .setTitle("❌ Bet Not Found")
+        ]
+      });
+    }
+
+    user.coins += bets[index].amount;
+
+    saveUsers(users);
+
+    bets.splice(index, 1);
+
+    saveBets(bets);
+
+    return message.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor("#FB8C00")
+          .setTitle("✅ Bet Cancelled")
+          .setDescription(
+            `Refunded **${bets[index]?.amount ?? 0} Coins**`
+          )
+      ]
+    });
+
   }
 
   // ======================
@@ -457,16 +727,30 @@ client.on("messageCreate", async (message) => {
     );
 
     if (!match) {
-      return message.reply("❌ Match not found.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#E53935")
+            .setTitle("❌ Match Not Found")
+        ]
+      });
     }
 
     match.status = "CLOSED";
 
     saveMatches(matches);
 
-    return message.reply(
-      `🔒 Match ${matchId} closed.`
-    );
+    return message.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor("#FB8C00")
+          .setTitle("🔒 Betting Closed")
+          .setDescription(
+            `Match #${matchId} has been closed.`
+          )
+      ]
+    });
+
   }
 
   // ======================
@@ -485,13 +769,23 @@ client.on("messageCreate", async (message) => {
     );
 
     if (!match) {
-      return message.reply("❌ Match not found.");
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#E53935")
+            .setTitle("❌ Match Not Found")
+        ]
+      });
     }
 
     if (match.status === "FINISHED") {
-      return message.reply(
-        "❌ This match already has a result."
-      );
+      return message.reply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("#E53935")
+            .setTitle("❌ Result Already Recorded")
+        ]
+      });
     }
 
     match.status = "FINISHED";
@@ -521,6 +815,7 @@ client.on("messageCreate", async (message) => {
         saveUsers(allUsers);
 
         winners++;
+
       }
 
     });
@@ -533,47 +828,29 @@ client.on("messageCreate", async (message) => {
 
     saveMatches(matches);
 
-    return message.reply(
-`🏆 Result Recorded!
+    const embed = new EmbedBuilder()
+      .setColor("#43A047")
+      .setTitle("🏆 Match Finished")
+      .addFields(
+        {
+          name: "Winner",
+          value: winner
+        },
+        {
+          name: "Paid Winners",
+          value: winners.toString(),
+          inline: true
+        }
+      )
+      .setFooter({
+        text: "VFN Betting Bot"
+      })
+      .setTimestamp();
 
-Winner: ${winner}
+    return message.reply({
+      embeds: [embed]
+    });
 
-Paid ${winners} winner(s).`
-    );
-  }
-
-  // ======================
-  // !cancelbet
-  // ======================
-  if (command === "cancelbet") {
-
-    const matchId = parseInt(args[0]);
-
-    const bets = loadBets();
-
-    const index = bets.findIndex(
-      b =>
-        b.user === message.author.id &&
-        b.matchId === matchId
-    );
-
-    if (index === -1) {
-      return message.reply(
-        "❌ Bet not found."
-      );
-    }
-
-    user.coins += bets[index].amount;
-
-    saveUsers(users);
-
-    bets.splice(index, 1);
-
-    saveBets(bets);
-
-    return message.reply(
-      "✅ Bet cancelled."
-    );
   }
 
   // ======================
@@ -585,13 +862,27 @@ Paid ${winners} winner(s).`
       .sort((a, b) => b[1].coins - a[1].coins)
       .slice(0, 10);
 
-    let text = "🏆 Leaderboard\n\n";
+    const embed = new EmbedBuilder()
+      .setColor("#FBC02D")
+      .setTitle("👑 Coin Leaderboard");
 
     leaderboard.forEach(([id, data], i) => {
-      text += `${i + 1}. <@${id}> — ${data.coins} coins\n`;
+      embed.addFields({
+        name: `#${i + 1}`,
+        value: `<@${id}> — **${data.coins}** Coins`
+      });
     });
 
-    return message.reply(text);
+    embed
+      .setFooter({
+        text: "VFN Betting Bot"
+      })
+      .setTimestamp();
+
+    return message.reply({
+      embeds: [embed]
+    });
+
   }
 
 });
