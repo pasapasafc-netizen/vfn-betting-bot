@@ -269,8 +269,6 @@ if (command === "bet") {
 
 });
 
-client.login(process.env.DISCORD_TOKEN);
-
 // ======================
 // LOGIN
 // ======================
