@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const { Client, GatewayIntentBits } = require("discord.js");
 const { loadUsers, saveUsers } = require("./db");
+const { loadBets, saveBets } = require("./betDb");
 const fs = require("fs");
 
 const client = new Client({
@@ -55,7 +56,7 @@ client.once("ready", () => {
 });
 
 // ======================
-// COMMANDS
+// COMMAND HANDLER
 // ======================
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
@@ -84,7 +85,7 @@ client.on("messageCreate", async (message) => {
 !ping - Check bot latency
 !help - Show this menu
 !balance - View your balance
-!daily - Claim 500 coins
+!daily - Claim 500 coins every 24 hours
 !creatematch Team1 Team2
 !matches - View all matches`
     );
@@ -189,6 +190,16 @@ client.on("messageCreate", async (message) => {
 
     return message.reply(text);
   }
+
+  // load bets (for future betting commands)
+  const bets = loadBets();
+
+  // Future commands:
+  // !bet
+  // !mybets
+  // !closematch
+  // !result
+  // !leaderboard
 });
 
 // ======================
