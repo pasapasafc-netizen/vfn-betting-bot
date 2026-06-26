@@ -257,6 +257,33 @@ client.on("messageCreate", async (message) => {
   );
 }
 });
+  // ======================
+  // !closematch
+  // ======================
+  if (command === "closematch") {
+
+    const matchId = parseInt(args[0]);
+
+    if (!matchId) {
+      return message.reply("Usage: !closematch MatchID");
+    }
+
+    const matches = loadMatches();
+
+    const match = matches.find(m => m.id === matchId);
+
+    if (!match) {
+      return message.reply("❌ Match not found.");
+    }
+
+    match.status = "CLOSED";
+
+    saveMatches(matches);
+
+    return message.reply(
+      `🔒 Match ${matchId} has been closed.\nNo more bets can be placed.`
+    );
+  }
 
 // ======================
 // LOGIN
