@@ -191,18 +191,10 @@ client.on("messageCreate", async (message) => {
     return message.reply(text);
   }
 
- return message.reply(text);
-}
-
 // ======================
 // !bet
 // ======================
-if (command === "bet") {
-
-   // // ======================
-// !bet
-// ======================
-if (command === "bet") {
+  if (command === "bet") {
 
   const matchId = parseInt(args[0]);
   const team = args[1];
@@ -264,9 +256,6 @@ if (command === "bet") {
 🏦 Remaining Balance: ${user.coins}`
   );
 }
-
-}
-
 });
 
 // ======================
