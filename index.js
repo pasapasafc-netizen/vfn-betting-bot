@@ -9,13 +9,11 @@ const client = new Client({
     GatewayIntentBits.MessageContent
   ]
 });
-  
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
-client.login(process.env.DISCORD_TOKEN);
 client.on('messageCreate', message => {
   if (message.author.bot) return;
 
@@ -23,3 +21,5 @@ client.on('messageCreate', message => {
     message.reply('🏆 VFN Betting Bot is online!');
   }
 });
+
+client.login(process.env.DISCORD_TOKEN);
