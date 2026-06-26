@@ -468,6 +468,58 @@ if (command === "cancelbet") {
 🏦 New Balance: ${user.coins} coins`
   );
 }
+  // ======================
+// !betslip
+// ======================
+if (command === "betslip") {
+
+  const bets = loadBets();
+
+  const bet = bets.find(
+    b => b.user === message.author.id
+  );
+
+  if (!bet) {
+    return message.reply("❌ You don't have any active bets.");
+  }
+
+  const matches = loadMatches();
+
+  const match = matches.find(
+    m => m.id === bet.matchId
+  );
+
+  if (!match) {
+    return message.reply("❌ Match not found.");
+  }
+
+  const odds =
+    bet.team.toLowerCase() === match.team1.toLowerCase()
+      ? match.odds1
+      : match.odds2;
+
+  const potentialWin = Math.floor(bet.amount * odds);
+
+  return message.reply(
+`🎟 **VFN BET SLIP**
+
+👤 ${message.author.username}
+
+🆔 Match #${bet.matchId}
+
+⚽ ${match.team1} 🆚 ${match.team2}
+
+🎯 Pick: ${bet.team}
+
+💰 Stake: ${bet.amount} coins
+
+📈 Odds: ${odds}x
+
+💵 Potential Win: ${potentialWin} coins
+
+📊 Status: ${match.status}`
+  );
+}
   });
 
 // ======================
