@@ -23,11 +23,13 @@ const PREFIX = "!";
 // USER FUNCTIONS
 // ======================
 function getUser(users, userId) {
-  if (!users[userId]) {
-    users[userId] = {
-      coins: 0,
-      lastDaily: 0,
-    };
+  if users[userId] = {
+  coins: 0,
+  lastDaily: 0,
+  wins: 0,
+  losses: 0,
+  wagered: 0,
+};
     saveUsers(users);
   }
 
@@ -244,6 +246,7 @@ const odds2 = parseFloat(args[3]);
   }
 
   user.coins -= amount;
+user.wagered += amount;
   saveUsers(users);
 
   bets.push({
@@ -330,7 +333,17 @@ if (command === "result") {
       bet.matchId === matchId &&
       bet.team.toLowerCase() === winner.toLowerCase()
     ) {
+else if (bet.matchId === matchId) {
 
+  const users = loadUsers();
+
+  if (users[bet.user]) {
+    users[bet.user].losses++;
+
+    saveUsers(users);
+  }
+
+}
       const users = loadUsers();
 
       if (users[bet.user]) {
@@ -341,7 +354,7 @@ if (command === "result") {
     : match.odds2;
 
 users[bet.user].coins += Math.floor(bet.amount * multiplier);
-
+users[bet.user].wins++;
         saveUsers(users);
 
         winners++;
