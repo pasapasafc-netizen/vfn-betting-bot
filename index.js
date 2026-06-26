@@ -321,7 +321,9 @@ if (command === "result") {
   if (!match) {
     return message.reply("❌ Match not found.");
   }
-
+if (match.status === "FINISHED") {
+  return message.reply("❌ This match already has a result.");
+}
   match.status = "FINISHED";
 
   let winners = 0;
@@ -332,18 +334,7 @@ if (command === "result") {
     if (
       bet.matchId === matchId &&
       bet.team.toLowerCase() === winner.toLowerCase()
-    ) {
-else if (bet.matchId === matchId) {
-
-  const users = loadUsers();
-
-  if (users[bet.user]) {
-    users[bet.user].losses++;
-
-    saveUsers(users);
-  }
-
-}
+    ) 
       const users = loadUsers();
 
       if (users[bet.user]) {
@@ -364,7 +355,11 @@ users[bet.user].wins++;
     }
 
   });
+const remainingBets = bets.filter(
+  bet => bet.matchId !== matchId
+);
 
+saveBets(remainingBets);
   saveMatches(matches);
 
   return message.reply(
@@ -545,4 +540,4 @@ if (command === "betslip") {
 // ======================
 // LOGIN
 // ======================
-client.login(process.env.DISCORD_TOKEN) ;
+client.login(process.env.DISCORD_TOKEN);
