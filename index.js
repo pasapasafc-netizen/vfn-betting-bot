@@ -290,11 +290,17 @@ const matchTime = args[5];
       return message.reply("❌ Match not found.");
     }
 
-    if (match.status !== "OPEN") {
-      return message.reply(
-        "❌ Betting is closed."
-      );
-    }
+    if (match.status === "LOCKED") {
+  return message.reply(
+    "🔒 Betting closed.\nThis match starts in less than 20 minutes."
+  );
+}
+
+if (match.status !== "OPEN") {
+  return message.reply(
+    `❌ Betting is unavailable.\nCurrent Match Status: ${match.status}`
+  );
+}
 
     if (
       team.toLowerCase() !== match.team1.toLowerCase() &&
@@ -983,6 +989,62 @@ if (myParlay.status !== "BUILDING") {
 Good luck! 🍀`
     );
   }
+  // ======================
+// AUTO LOCK MATCHES
+// ======================
+
+setInterval(() => {
+
+  const matches = loadMatches();
+
+  const now = new Date();
+
+  let updated = false;
+
+  matches.forEach(match => {
+
+    if (match.status !== "OPEN") return;
+
+    const kickoff = new Date(`${match.date}T${match.time}:00`);
+
+    const lockTime = new Date(
+      kickoff.getTime() - (20 * 60 * 1000)
+    );
+
+    if (now >= lockTime) {
+
+      match.status = "LOCKED";
+
+      updated = true;
+
+      console.log(
+        `🔒 Betting locked for ${match.team1} vs ${match.team2}`
+      );
+
+    }
+
+if (
+  match.status === "LOCKED" &&
+  now >= kickoff
+) {
+
+  match.status = "LIVE";
+
+  updated = true;
+
+  console.log(
+    `🔴 ${match.team1} vs ${match.team2} is now LIVE`
+  );
+
+}
+  });
+
+  if (updated) {
+    saveMatches(matches);
+  }
+
+}, 60000);
+  
 });
 
 client.login(process.env.DISCORD_TOKEN);
