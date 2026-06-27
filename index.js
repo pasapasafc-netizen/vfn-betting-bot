@@ -594,7 +594,27 @@ Paid ${winners} winner(s).`
 
     return message.reply(text);
   }
+  // ======================
+  // !parlay
+  // ======================
+  if (command === "parlay") {
 
+    const parlays = loadParlays();
+
+    const myParlay = parlays.find(
+      p => p.user === message.author.id
+    );
+
+    if (!myParlay) {
+      return message.reply(
+        "❌ You don't have an active parlay yet."
+      );
+    }
+
+    return message.reply(
+      "🎟 Your parlay system is connected!"
+    );
+  }
 });
 
 client.login(process.env.DISCORD_TOKEN);
