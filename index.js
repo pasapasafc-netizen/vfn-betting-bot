@@ -770,6 +770,66 @@ Current Picks:
 ${myParlay.selections.length}`
     );
   } 
+
+    // ======================
+  // !removeteam
+  // ======================
+  if (command === "removeteam") {
+
+    const pickNumber = parseInt(args[0]);
+
+    if (!pickNumber) {
+      return message.reply(
+        "Usage: !removeteam PickNumber"
+      );
+    }
+
+    const parlays = loadParlays();
+
+    const myParlay = parlays.find(
+      p => p.user === message.author.id
+    );
+
+    if (!myParlay) {
+      return message.reply(
+        "❌ You don't have an active parlay."
+      );
+    }
+
+    if (
+      pickNumber < 1 ||
+      pickNumber > myParlay.selections.length
+    ) {
+      return message.reply(
+        "❌ Invalid selection number."
+      );
+    }
+
+    const removed = myParlay.selections.splice(
+      pickNumber - 1,
+      1
+    )[0];
+
+    myParlay.totalOdds = 1;
+
+    myParlay.selections.forEach(selection => {
+      myParlay.totalOdds *= selection.odds;
+    });
+
+    myParlay.potentialWin = Math.floor(
+      myParlay.stake * myParlay.totalOdds
+    );
+
+    saveParlays(parlays);
+
+    return message.reply(
+`✅ Removed ${removed.team}
+
+📈 New Odds: ${myParlay.totalOdds.toFixed(2)}x
+
+🏆 Potential Win: ${myParlay.potentialWin} Coins`
+    );
+  }
 });
 
 client.login(process.env.DISCORD_TOKEN);
