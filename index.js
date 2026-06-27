@@ -830,6 +830,52 @@ ${myParlay.selections.length}`
 🏆 Potential Win: ${myParlay.potentialWin} Coins`
     );
   }
+
+    // ======================
+  // !submitparlay
+  // ======================
+  if (command === "submitparlay") {
+
+    const parlays = loadParlays();
+
+    const myParlay = parlays.find(
+      p => p.user === message.author.id
+    );
+
+    if (!myParlay) {
+      return message.reply(
+        "❌ You don't have an active parlay."
+      );
+    }
+
+    if (myParlay.status !== "BUILDING") {
+      return message.reply(
+        "❌ This parlay has already been submitted."
+      );
+    }
+
+    if (myParlay.selections.length < 2) {
+      return message.reply(
+        "❌ A parlay must have at least 2 selections."
+      );
+    }
+
+    myParlay.status = "ACTIVE";
+
+    saveParlays(parlays);
+
+    return message.reply(
+`🎟 Parlay Submitted!
+
+✅ Status: ACTIVE
+
+📈 Combined Odds: ${myParlay.totalOdds.toFixed(2)}x
+
+🏆 Potential Win: ${myParlay.potentialWin} Coins
+
+Good luck! 🍀`
+    );
+  }
 });
 
 client.login(process.env.DISCORD_TOKEN);
