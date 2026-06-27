@@ -176,11 +176,18 @@ const odds2 = parseFloat(args[3]);
 const matchDate = args[4];
 const matchTime = args[5]; 
 
-    if (!team1 || !team2 || !odds1 || !odds2) {
-      return message.reply(
-        "Usage: !creatematch Team1 Team2 Odds1 Odds2\nExample: !creatematch Barcelona RealMadrid 1.85 2.30"
-      );
-    }
+  if (
+  !team1 ||
+  !team2 ||
+  !odds1 ||
+  !odds2 ||
+  !matchDate ||
+  !matchTime
+) {
+  return message.reply(
+    "Usage: !creatematch Team1 Team2 Odds1 Odds2 YYYY-MM-DD HH:MM\n\nExample:\n!creatematch Arsenal Porto 1.80 2.20 2026-06-28 21:00"
+  );
+} 
 
     const matches = loadMatches();
 
