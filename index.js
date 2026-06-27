@@ -725,7 +725,11 @@ Use !addteam to add your first pick.`
         "❌ Create a parlay first using !createparlay"
       );
     }
-
+if (myParlay.status !== "BUILDING") {
+  return message.reply(
+    "❌ This parlay has already been submitted."
+  );
+}
     const matches = loadMatches();
 
     const match = matches.find(
