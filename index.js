@@ -625,9 +625,9 @@ if (myParlay.selections.length === 0) {
 
 } else {
 
-  myParlay.selections.forEach(selection => {
+  myParlay.selections.forEach((selection, index) => {
 
-   text += `⏳ ${selection.team} (${selection.odds.toFixed(2)}x)\n`; 
+   text += `${index + 1}️⃣ ⏳ ${selection.team} (${selection.odds.toFixed(2)}x)\n`;
   });
 
 }
