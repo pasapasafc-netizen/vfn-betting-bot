@@ -612,7 +612,9 @@ Paid ${winners} winner(s).`
     }
    let text = `🎟 **VFN PARLAY**\n\n`;
 
-text += `💰 Stake: ${myParlay.stake} coins\n`;
+text += `💰 Stake: ${myParlay.stake} Coins\n`;
+text += `📈 Combined Odds: ${myParlay.totalOdds.toFixed(2)}x\n`;
+text += `🏆 Potential Win: ${myParlay.potentialWin} Coins\n`;
 text += `📊 Status: ${myParlay.status}\n\n`;
 
 text += "**Selections**\n";
@@ -625,8 +627,7 @@ if (myParlay.selections.length === 0) {
 
   myParlay.selections.forEach(selection => {
 
-    text += `⏳ ${selection.team}\n`;
-
+   text += `⏳ ${selection.team} (${selection.odds.toFixed(2)}x)\n`; 
   });
 
 }
