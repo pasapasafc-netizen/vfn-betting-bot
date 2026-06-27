@@ -240,83 +240,98 @@ const matchTime = args[5];
   }
 
   // ======================
-  // !matches
-  // ======================
-  if (command === "matches") {
+// !matches
+// ======================
+if (command === "matches") {
 
-    const matches = loadMatches();
+  const matches = loadMatches();
 
-    if (matches.length === 0) {
-      return message.reply("❌ No matches available.");
+  if (matches.length === 0) {
+    return message.reply("❌ No matches available.");
+  }
+
+  let text = "🏟 **VFN MATCH CENTER**\n\n";
+
+  const now = new Date();
+
+  matches.forEach(match => {
+
+    let statusIcon = "🟢";
+
+    if (match.status === "LOCKED") statusIcon = "🔒";
+    if (match.status === "LIVE") statusIcon = "🔴";
+    if (match.status === "FINISHED") statusIcon = "✅";
+
+    const kickoff = new Date(`${match.date}T${match.time}:00`);
+
+    const formattedDate = kickoff.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric"
+    });
+
+    const formattedTime = kickoff.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true
+    });
+
+    const minutesUntilKickoff = Math.floor(
+      (kickoff.getTime() - now.getTime()) / 60000
+    );
+
+    const minutesUntilLock = minutesUntilKickoff - 20;
+
+    let countdown = "";
+
+    if (match.status === "OPEN") {
+
+      if (minutesUntilLock > 60) {
+
+        const hours = Math.floor(minutesUntilLock / 60);
+        const mins = minutesUntilLock % 60;
+
+        countdown = `⏳ Betting closes in ${hours}h ${mins}m`;
+
+      } else if (minutesUntilLock > 0) {
+
+        countdown = `⏳ Betting closes in ${minutesUntilLock}m`;
+
+      } else {
+
+        countdown = "🔒 Betting closing soon";
+
+      }
+
     }
 
-    let text = "📋 **Open Matches**\n\n";
+    else if (match.status === "LOCKED") {
 
-    matches.forEach(match => {
+      if (minutesUntilKickoff > 0) {
 
-  let statusIcon = "🟢";
+        countdown = `🔒 Betting Closed\nKickoff in ${minutesUntilKickoff}m`;
 
-  if (match.status === "LOCKED") statusIcon = "🔒";
-  if (match.status === "LIVE") statusIcon = "🔴";
-  if (match.status === "FINISHED") statusIcon = "✅";
+      } else {
 
-  const matchDate = new Date(`${match.date}T${match.time}:00`);
+        countdown = "🔴 LIVE NOW";
 
-  const formattedDate = matchDate.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric"
-  });
+      }
 
-  const formattedTime = matchDate.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true
-  });
-const now = new Date();
+    }
 
-const minutesUntilKickoff = Math.floor(
-  (matchDate - now) / 60000
-);
+    else if (match.status === "LIVE") {
 
-const minutesUntilLock = minutesUntilKickoff - 20;
+      countdown = "🔴 LIVE NOW";
 
-let countdown = "";
+    }
 
-if (match.status === "OPEN") {
+    else {
 
-  const hours = Math.floor(minutesUntilLock / 60);
-  const minutes = minutesUntilLock % 60;
+      countdown = "✅ Match Finished";
 
-  countdown =
-`⏳ Betting closes in
-${hours}h ${minutes}m`;
+    }
 
-}
-
-else if (match.status === "LOCKED") {
-
-  countdown =
-`🔒 Betting Closed
-
-Kickoff in ${minutesUntilKickoff}m`;
-
-}
-
-else if (match.status === "LIVE") {
-
-  countdown =
-`🔴 LIVE NOW`;
-
-}
-
-else {
-
-  countdown =
-`✅ Match Finished`;
-
-}
-  text +=
+    text +=
 `🆔 Match #${match.id}
 
 ⚽ ${match.team1} 🆚 ${match.team2}
@@ -334,14 +349,15 @@ ${countdown}
 
 ${statusIcon} ${match.status}
 
-━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━
 
 `;
 
-    });
+  });
 
-    return message.reply(text);
-  }
+  return message.reply(text);
+
+}
     // ======================
   // !bet
   // ======================
@@ -1074,7 +1090,6 @@ Good luck! 🍀`
 setInterval(() => {
 
   const matches = loadMatches();
-
   const now = new Date();
 
   let updated = false;
@@ -1082,45 +1097,44 @@ setInterval(() => {
   matches.forEach(match => {
 
     if (match.status === "FINISHED") return;
+
     const kickoff = new Date(`${match.date}T${match.time}:00`);
 
     const lockTime = new Date(
       kickoff.getTime() - (20 * 60 * 1000)
     );
 
-   if (
-    match.status === "OPEN" &&
-    now >= lockTime
-) {
+    // OPEN -> LOCKED
+    if (
+      match.status === "OPEN" &&
+      now >= lockTime &&
+      now < kickoff
+    ) {
 
-    match.status = "LOCKED";
-
-    updated = true;
-
-}
-
+      match.status = "LOCKED";
       updated = true;
 
       console.log(
-        `🔒 Betting locked for ${match.team1} vs ${match.team2}`
+        `🔒 Locked: ${match.team1} vs ${match.team2}`
       );
 
     }
 
-if (
-  match.status === "LOCKED" &&
-  now >= kickoff
-) {
+    // LOCKED -> LIVE
+    if (
+      match.status === "LOCKED" &&
+      now >= kickoff
+    ) {
 
-  match.status = "LIVE";
+      match.status = "LIVE";
+      updated = true;
 
-  updated = true;
+      console.log(
+        `🔴 LIVE: ${match.team1} vs ${match.team2}`
+      );
 
-  console.log(
-    `🔴 ${match.team1} vs ${match.team2} is now LIVE`
-  );
+    }
 
-}
   });
 
   if (updated) {
