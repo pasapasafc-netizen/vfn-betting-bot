@@ -686,7 +686,17 @@ text += `💰 Stake: ${myParlay.stake} Coins\n`;
 text += `📈 Combined Odds: ${myParlay.totalOdds.toFixed(2)}x\n`;
 text += `🏆 Potential Win: ${myParlay.potentialWin} Coins\n`;
 text += `📊 Status: ${myParlay.status}\n\n`;
+if (myParlay.status === "WON") {
 
+  text += `🎉 Winnings Paid: ${myParlay.potentialWin} Coins\n\n`;
+
+}
+
+if (myParlay.status === "LOST") {
+
+  text += `💔 Better luck next time!\n\n`;
+
+}
 text += "**Selections**\n";
 
 if (myParlay.selections.length === 0) {
