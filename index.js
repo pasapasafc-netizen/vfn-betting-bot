@@ -799,7 +799,11 @@ ${myParlay.selections.length}`
         "❌ You don't have an active parlay."
       );
     }
-
+if (myParlay.status !== "BUILDING") {
+  return message.reply(
+    "❌ This parlay has already been submitted."
+  );
+}
     if (
       pickNumber < 1 ||
       pickNumber > myParlay.selections.length
