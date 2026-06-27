@@ -669,6 +669,63 @@ Selections: 0
 Use !addteam to add your first pick.`
     );
   }
+
+   // ======================
+  // !addteam
+  // ======================
+  if (command === "addteam") {
+
+    const matchId = parseInt(args[0]);
+    const team = args[1];
+
+    if (!matchId || !team) {
+      return message.reply(
+        "Usage: !addteam MatchID Team"
+      );
+    }
+
+    const parlays = loadParlays();
+
+    const myParlay = parlays.find(
+      p => p.user === message.author.id
+    );
+
+    if (!myParlay) {
+      return message.reply(
+        "❌ Create a parlay first using !createparlay"
+      );
+    }
+
+    const matches = loadMatches();
+
+    const match = matches.find(
+      m => m.id === matchId
+    );
+
+    if (!match) {
+      return message.reply(
+        "❌ Match not found."
+      );
+    }
+
+    myParlay.selections.push({
+      type: "TEAM",
+      matchId,
+      team,
+      status: "PENDING"
+    });
+
+    saveParlays(parlays);
+
+    return message.reply(
+`✅ Team added!
+
+⚽ ${team}
+
+Current Picks:
+${myParlay.selections.length}`
+    );
+  } 
 });
 
 client.login(process.env.DISCORD_TOKEN);
