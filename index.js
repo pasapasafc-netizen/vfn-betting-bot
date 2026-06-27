@@ -737,13 +737,27 @@ Use !addteam to add your first pick.`
       );
     }
 
-    myParlay.selections.push({
-      type: "TEAM",
-      matchId,
-      team,
-      status: "PENDING"
-    });
+    const odds =
+  team.toLowerCase() === match.team1.toLowerCase()
+    ? match.odds1
+    : match.odds2;
 
+myParlay.selections.push({
+  type: "TEAM",
+  matchId,
+  team,
+  odds,
+  status: "PENDING"
+});
+myParlay.totalOdds = 1;
+
+myParlay.selections.forEach(selection => {
+  myParlay.totalOdds *= selection.odds;
+});
+
+myParlay.potentialWin = Math.floor(
+  myParlay.stake * myParlay.totalOdds
+);
     saveParlays(parlays);
 
     return message.reply(
