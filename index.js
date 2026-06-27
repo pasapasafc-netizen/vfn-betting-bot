@@ -610,10 +610,28 @@ Paid ${winners} winner(s).`
         "❌ You don't have an active parlay yet."
       );
     }
+   let text = `🎟 **VFN PARLAY**\n\n`;
 
-    return message.reply(
-      "🎟 Your parlay system is connected!"
-    );
+text += `💰 Stake: ${myParlay.stake} coins\n`;
+text += `📊 Status: ${myParlay.status}\n\n`;
+
+text += "**Selections**\n";
+
+if (myParlay.selections.length === 0) {
+
+  text += "No selections added yet.";
+
+} else {
+
+  myParlay.selections.forEach(selection => {
+
+    text += `⏳ ${selection.team}\n`;
+
+  });
+
+}
+
+return message.reply(text); 
   }
 
     // ======================
