@@ -668,12 +668,23 @@ return message.reply(text);
     user.coins -= stake;
     saveUsers(users);
 
-    parlays.push({
-      user: message.author.id,
-      stake,
-      status: "BUILDING",
-      selections: []
-    });
+   parlays.push({
+  id: Date.now(),
+
+  user: message.author.id,
+
+  stake: stake,
+
+  totalOdds: 1.00,
+
+  potentialWin: stake,
+
+  status: "BUILDING",
+
+  selections: [],
+
+  createdAt: Date.now()
+}); 
 
     saveParlays(parlays);
 
