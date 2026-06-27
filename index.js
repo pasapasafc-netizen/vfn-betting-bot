@@ -194,13 +194,15 @@ const matchTime = args[5];
     const id = matches.length + 1;
 
     matches.push({
-      id,
-      team1,
-      team2,
-      odds1,
-      odds2,
-      status: "OPEN",
-    });
+  id,
+  team1,
+  team2,
+  odds1,
+  odds2,
+  date: matchDate,
+  time: matchTime,
+  status: "OPEN"
+});
 
     saveMatches(matches);
 
