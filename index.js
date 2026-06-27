@@ -1126,7 +1126,5 @@ if (
   }
 
 }, 60000);
-  
-});
 
 client.login(process.env.DISCORD_TOKEN);
