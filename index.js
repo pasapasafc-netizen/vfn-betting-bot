@@ -168,10 +168,13 @@ client.on("messageCreate", async (message) => {
   // ======================
   if (command === "creatematch") {
 
-    const team1 = args[0];
-    const team2 = args[1];
-    const odds1 = parseFloat(args[2]);
-    const odds2 = parseFloat(args[3]);
+   const team1 = args[0];
+const team2 = args[1];
+const odds1 = parseFloat(args[2]);
+const odds2 = parseFloat(args[3]);
+
+const matchDate = args[4];
+const matchTime = args[5]; 
 
     if (!team1 || !team2 || !odds1 || !odds2) {
       return message.reply(
