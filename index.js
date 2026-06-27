@@ -8,6 +8,7 @@ const {
 
 const { loadUsers, saveUsers } = require("./db");
 const { loadBets, saveBets } = require("./betDb");
+const { loadParlays, saveParlays } = require("./parlayDb");
 const fs = require("fs");
 
 const client = new Client({
