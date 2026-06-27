@@ -525,7 +525,43 @@ client.on("messageCreate", async (message) => {
       }
 
     });
+    // ======================
+    // Update Active Parlays
+    // ======================
 
+    const parlays = loadParlays();
+
+    parlays.forEach(parlay => {
+
+      if (parlay.status !== "ACTIVE") return;
+
+      parlay.selections.forEach(selection => {
+
+        if (
+          selection.type === "TEAM" &&
+          selection.matchId === matchId
+        ) {
+
+          if (
+            selection.team.toLowerCase() ===
+            winner.toLowerCase()
+          ) {
+
+            selection.status = "WON";
+
+          } else {
+
+            selection.status = "LOST";
+
+          }
+
+        }
+
+      });
+
+    });
+
+    saveParlays(parlays);
     saveBets(
       bets.filter(
         b => b.matchId !== matchId
