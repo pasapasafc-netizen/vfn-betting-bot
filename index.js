@@ -253,14 +253,90 @@ const matchTime = args[5];
     let text = "📋 **Open Matches**\n\n";
 
     matches.forEach(match => {
-      text +=
-`🆔 ${match.id}
+
+  let statusIcon = "🟢";
+
+  if (match.status === "LOCKED") statusIcon = "🔒";
+  if (match.status === "LIVE") statusIcon = "🔴";
+  if (match.status === "FINISHED") statusIcon = "✅";
+
+  const matchDate = new Date(`${match.date}T${match.time}:00`);
+
+  const formattedDate = matchDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric"
+  });
+
+  const formattedTime = matchDate.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  });
+const now = new Date();
+
+const minutesUntilKickoff = Math.floor(
+  (matchDate - now) / 60000
+);
+
+const minutesUntilLock = minutesUntilKickoff - 20;
+
+let countdown = "";
+
+if (match.status === "OPEN") {
+
+  const hours = Math.floor(minutesUntilLock / 60);
+  const minutes = minutesUntilLock % 60;
+
+  countdown =
+`⏳ Betting closes in
+${hours}h ${minutes}m`;
+
+}
+
+else if (match.status === "LOCKED") {
+
+  countdown =
+`🔒 Betting Closed
+
+Kickoff in ${minutesUntilKickoff}m`;
+
+}
+
+else if (match.status === "LIVE") {
+
+  countdown =
+`🔴 LIVE NOW`;
+
+}
+
+else {
+
+  countdown =
+`✅ Match Finished`;
+
+}
+  text +=
+`🆔 Match #${match.id}
+
 ⚽ ${match.team1} 🆚 ${match.team2}
-📈 ${match.odds1}x | ${match.odds2}x
-📊 ${match.status}
+
+📈 Odds
+🔵 ${match.team1}: ${match.odds1}x
+🔴 ${match.team2}: ${match.odds2}x
+
+📅 ${formattedDate}
+
+🕒 Kickoff
+${formattedTime}
+
+${countdown}
+
+${statusIcon} ${match.status}
+
+━━━━━━━━━━━━━━━━━━
 
 `;
-    });
 
     return message.reply(text);
   }
@@ -1003,8 +1079,7 @@ setInterval(() => {
 
   matches.forEach(match => {
 
-    if (match.status !== "OPEN") return;
-
+    if (match.status === "FINISHED") return;
     const kickoff = new Date(`${match.date}T${match.time}:00`);
 
     const lockTime = new Date(
