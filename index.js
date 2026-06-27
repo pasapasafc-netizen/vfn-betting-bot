@@ -615,6 +615,60 @@ Paid ${winners} winner(s).`
       "🎟 Your parlay system is connected!"
     );
   }
+
+    // ======================
+  // !createparlay
+  // ======================
+  if (command === "createparlay") {
+
+    const stake = parseInt(args[0]);
+
+    if (!stake || stake <= 0) {
+      return message.reply(
+        "Usage: !createparlay Amount"
+      );
+    }
+
+    if (user.coins < stake) {
+      return message.reply(
+        "❌ You don't have enough coins."
+      );
+    }
+
+    const parlays = loadParlays();
+
+    const existing = parlays.find(
+      p => p.user === message.author.id
+    );
+
+    if (existing) {
+      return message.reply(
+        "❌ You already have an active parlay."
+      );
+    }
+
+    user.coins -= stake;
+    saveUsers(users);
+
+    parlays.push({
+      user: message.author.id,
+      stake,
+      status: "BUILDING",
+      selections: []
+    });
+
+    saveParlays(parlays);
+
+    return message.reply(
+`🎟 Parlay Created!
+
+Stake: ${stake} coins
+
+Selections: 0
+
+Use !addteam to add your first pick.`
+    );
+  }
 });
 
 client.login(process.env.DISCORD_TOKEN);
