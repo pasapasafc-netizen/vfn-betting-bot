@@ -663,7 +663,14 @@ if (myParlay.selections.length === 0) {
 
   myParlay.selections.forEach((selection, index) => {
 
-   text += `${index + 1}️⃣ ⏳ ${selection.team} (${selection.odds.toFixed(2)}x)\n`;
+   const icon =
+  selection.status === "WON"
+    ? "✅"
+    : selection.status === "LOST"
+    ? "❌"
+    : "⏳";
+
+text += `${index + 1}️⃣ ${icon} ${selection.team} (${selection.odds.toFixed(2)}x)\n`;
   });
 
 }
