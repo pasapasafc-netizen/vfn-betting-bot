@@ -338,6 +338,8 @@ ${statusIcon} ${match.status}
 
 `;
 
+    });
+
     return message.reply(text);
   }
     // ======================
@@ -1127,4 +1129,5 @@ if (
 
 }, 60000);
 
+});
 client.login(process.env.DISCORD_TOKEN);
