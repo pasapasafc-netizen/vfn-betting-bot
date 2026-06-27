@@ -636,6 +636,47 @@ if (match.status !== "OPEN") {
         winners++;
       }
 
+      // ======================
+// !addcoins (ADMIN)
+// ======================
+if (command === "addcoins") {
+
+  // Change this to your Discord User ID
+  const OWNER_USERNAME = "coachdave2";
+
+if (message.author.username !== OWNER_USERNAME) {
+  return message.reply("❌ You don't have permission to use this command.");
+}
+  const member = message.mentions.users.first();
+
+  if (!member) {
+    return message.reply("Usage: !addcoins @user amount");
+  }
+
+  const amount = parseInt(args[1]);
+
+  if (isNaN(amount) || amount <= 0) {
+    return message.reply("❌ Enter a valid amount.");
+  }
+
+  const users = loadUsers();
+
+  if (!users[member.id]) {
+    users[member.id] = {
+      balance: 0
+    };
+  }
+
+  users[member.id].balance += amount;
+
+  saveUsers(users);
+
+  return message.reply(
+    `✅ Added **${amount.toLocaleString()}** coins to **${member.username}**.\n\n💰 New Balance: **${users[member.id].balance.toLocaleString()}** coins.`
+  );
+
+}
+
     });
     // ======================
     // Update Active Parlays
