@@ -1086,9 +1086,16 @@ setInterval(() => {
       kickoff.getTime() - (20 * 60 * 1000)
     );
 
-    if (now >= lockTime) {
+   if (
+    match.status === "OPEN" &&
+    now >= lockTime
+) {
 
-      match.status = "LOCKED";
+    match.status = "LOCKED";
+
+    updated = true;
+
+}
 
       updated = true;
 
