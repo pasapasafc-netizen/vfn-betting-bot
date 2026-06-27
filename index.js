@@ -560,7 +560,41 @@ client.on("messageCreate", async (message) => {
       });
 
     });
+    parlays.forEach(parlay => {
 
+      if (parlay.status !== "ACTIVE") return;
+
+      const lost = parlay.selections.some(
+        s => s.status === "LOST"
+      );
+
+      if (lost) {
+        parlay.status = "LOST";
+        return;
+      }
+
+      const allWon = parlay.selections.every(
+        s => s.status === "WON"
+      );
+
+      if (allWon) {
+
+        parlay.status = "WON";
+
+        const allUsers = loadUsers();
+
+        if (allUsers[parlay.user]) {
+
+          allUsers[parlay.user].coins +=
+            parlay.potentialWin;
+
+          saveUsers(allUsers);
+
+        }
+
+      }
+
+    });
     saveParlays(parlays);
     saveBets(
       bets.filter(
