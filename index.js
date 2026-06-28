@@ -641,7 +641,7 @@ if (match.status !== "OPEN") {
 // ======================
 if (command === "addcoins") {
 
-  // Change this to your Discord User ID
+  console.log(message.author.username);
   const OWNER_USERNAME = "coachdave2";
 
 if (message.author.username !== OWNER_USERNAME) {
