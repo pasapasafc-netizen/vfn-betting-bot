@@ -127,7 +127,37 @@ client.on("messageCreate", async (message) => {
       `💰 Balance: **${user.coins.toLocaleString()}** coins`
     );
   }
+// ======================
+// !bonus2500 (OWNER ONLY)
+// ======================
+if (command === "bonus2500") {
 
+  if (message.author.username !== "coachdave2") {
+    return message.reply("❌ You don't have permission.");
+  }
+
+  const users = loadUsers();
+
+  let totalUsers = 0;
+
+  for (const userId in users) {
+
+    if (!users[userId].balance) {
+      users[userId].balance = 0;
+    }
+
+    users[userId].balance += 2500;
+    totalUsers++;
+
+  }
+
+  saveUsers(users);
+
+  return message.reply(
+    `✅ Successfully gave **2,500 coins** to **${totalUsers}** users.`
+  );
+
+}
   // ======================
   // !daily
   // ======================
