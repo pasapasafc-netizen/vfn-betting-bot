@@ -1183,24 +1183,6 @@ setInterval(() => {
   }
 
 }, 60000);
-// ======================
-// ONE-TIME 2500 COIN BONUS
-// ======================
 
-const users = loadUsers();
-
-for (const userId in users) {
-
-  if (!users[userId].balance) {
-    users[userId].balance = 0;
-  }
-
-  users[userId].balance += 2500;
-
-}
-
-saveUsers(users);
-
-console.log("✅ 2500 coins added to all users.");
 });
 client.login(process.env.DISCORD_TOKEN);
